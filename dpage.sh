@@ -58,13 +58,14 @@ verify() {
 }
 
 cloning() {
-	echo -e "$cent cloning...\n"
-
 	#curl -sN $url -o index.html
-	wget -r -p $url -P webs -q --show-progress
-	sleep 1
-	clear
-	banner
+	if [[ $start == "true" ]];then
+		echo -e "$cent cloning...\n"
+		wget -r -p $url -P webs -q --show-progress
+		sleep 1
+		clear
+		banner
+	fi
 }
 
 dpage() {
@@ -81,6 +82,16 @@ dpage() {
 
 	cd "webs/${name}"
 
+	
+
+	#wp=$(cat index.html | grep wp-)
+
+	#if [[ ! -n $wp ]];then
+	sed -i -e 's!https://redneck.media/!/!g' index.html
+	#else
+		#echo -e "$A Warning$cent WordPress$excr detected\n"
+	#fi
+
 	port="8080"
 	ip=$(ifconfig | grep 192.168 | grep inet | awk '{print $2}')
 
@@ -92,7 +103,7 @@ dpage() {
 		echo -e "$cent opening web...\n"
 		xdg-open "http://${ip}:8080"
 	else
-		echo -e "$A Open web in$cent ${ip}:${port}\n"
+		echo -e "$A Open web in$cent http://${ip}:${port}\n"
 	fi
 	
 	while true;do
@@ -121,19 +132,11 @@ dpage() {
 				echo -e "$cent opening web...\n"
 				xdg-open "http://${ip}:8080"
 			else
-				echo -e "$A Open web in$cent ${ip}:${port}\n"
+				echo -e "$A Open web in$cent http://${ip}:${port}\n"
 			fi
 		fi
 		sleep 5
 	done
-}
-
-url() {
-	echo "test"
-}
-
-fclon() {
-	echo "ff t"
 }
 
 help() {
@@ -142,6 +145,7 @@ help() {
  $0 -u <url>    # page url
  $0 -f <file>   # index.html
  $0 -w          # open web
+ $0 -s          # start
  $0 -h          # help
 	"
 	exit 1
@@ -154,12 +158,13 @@ fi
 banner
 verify
 
-while getopts h,u:,f:,w arg;do
+while getopts h,u:,f:,w,s arg;do
 	case $arg in
 		h) help;;
 		u) url=$OPTARG;cloning;;
 		f) file=$OPTARG;fclon;;
 		w) web=$OPTARG;;
+		s) start=true;;
 	esac
 done
 
